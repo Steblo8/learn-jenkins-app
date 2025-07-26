@@ -4,6 +4,7 @@ pipeline {
     environment {
         NETLIFY_SITE_ID = '5b443736-82fe-4efd-bba9-694f548e86e2'
         NETLIFY_AUTH_TOKEN = credentials('netlify-token')
+        CI_ENVIRONMENT_URL = 'https://starlit-frangipane-25a8f3.netlify.app'
     }
 
     stages {
@@ -85,20 +86,25 @@ pipeline {
             }
             steps {
                 sh '''
-                    npm install netlify-cli
+                    npm install netlify-cli@20.1.1
                     node_modules/.bin/netlify --version
                     echo "Deploying to production. Site ID: $NETLIFY_SITE_ID"
                     node_modules/.bin/netlify status
+                    node_modules/.bin/netlify deploy --dir=build --prod
                 '''
             }
         }
 
-        /*stage('Prod E2E') {
+        stage('Prod E2E') {
             agent {
                 docker {
                     image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
                     reuseNode true
                 }
+            }
+            
+            environment {
+                CI_ENVIRONMENT_URL = 'https://starlit-frangipane-25a8f3.netlify.app'
             }
 
             steps {
@@ -106,12 +112,12 @@ pipeline {
                     npx playwright test  --reporter=html
                 '''
             }
-
+            
             post {
                 always {
                     publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright E2E', reportTitles: '', useWrapperFileDirectly: true])
                 }
             }
-        }*/
+        }
     }
 }
