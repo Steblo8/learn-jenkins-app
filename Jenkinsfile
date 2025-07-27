@@ -4,7 +4,7 @@ pipeline {
     environment {
         NETLIFY_SITE_ID = '5b443736-82fe-4efd-bba9-694f548e86e2'
         NETLIFY_AUTH_TOKEN = credentials('netlify-token')
-        CI_ENVIRONMENT_URL = 'https://starlit-frangipane-25a8f3.netlify.app'
+        REACT_APP_VERSION = "1.2.$BUILD_ID"
     }
 
     stages {
@@ -86,7 +86,7 @@ pipeline {
             }
 
             environment {
-                CI_ENVIRONMENT_URL = ''
+                CI_ENVIRONMENT_URL = 'STAGING_URL_TO_BE_SET'
             }
 
             steps {
@@ -105,14 +105,6 @@ pipeline {
                 always {
                     publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Staging E2E', reportTitles: '', useWrapperFileDirectly: true])
                 }
-            }
-        }
-
-        stage('Approval') {
-            steps {
-                timeout(time: 15, unit: 'MINUTES') {
-                    input message: 'Do you wish to deploy to production?', ok: 'Yes, I am sure!'
-                }  
             }
         }
 
